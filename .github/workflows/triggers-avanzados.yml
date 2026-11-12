@@ -1,0 +1,56 @@
+name: 06 - Triggers Avanzados
+
+on:
+  # TRIGGER 1: Se activa cuando alguien crea o actualiza un Pull Request
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+  # TRIGGER 2: Cron - se ejecuta automáticamente según horario
+  # Este ejemplo: todos los lunes a las 9:00 AM hora UTC
+  schedule:
+    - cron: '0 9 * * 1'
+
+  # TRIGGER 3: Manual con parámetros que el usuario ingresa
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: '¿A qué ambiente desplegar?'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      ejecutar_tests:
+        description: '¿Ejecutar tests antes de desplegar?'
+        type: boolean
+        default: true
+      version:
+        description: 'Número de versión (ej: 1.2.0)'
+        required: false
+        default: 'latest'
+
+jobs:
+  procesar-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Identificar qué trigger activó el workflow
+        run: |
+          echo "=== Información del trigger ==="
+          echo "Tipo de evento: ${{ github.event_name }}"
+          echo "Rama: ${{ github.ref_name }}"
+
+          # Acciones según el tipo de trigger
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "Este es un Pull Request. Ejecutando validaciones..."
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "Ejecución programada. Corriendo verificaciones periódicas..."
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Ejecución manual."
+            echo "Ambiente seleccionado: ${{ inputs.ambiente }}"
+            echo "Ejecutar tests: ${{ inputs.ejecutar_tests }}"
+            echo "Versión: ${{ inputs.version }}"
+          fi
