@@ -32,4 +32,5 @@ jobs:
         id: despliegue
         uses: actions/deploy-pages@v4
       - name: Mostrar URL de la página publicada
-        run: echo "Página publicada en: ${{ steps.despliegue.outputs.page_url }}"
+        run: |
+          echo "Página publicada en: ${{ steps.despliegue.outputs.page_url }}"
